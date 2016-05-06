@@ -31,6 +31,10 @@ var helpers = require('./lib/helpers');
 var initializeMiddleware = function initializeMiddleware (rlOrSO, resources, callback) {
   var args;
   var spec;
+  var swaggerUiDir = rlOrSO ? rlOrSO.swaggerUiDir : 'swagger-ui';
+  if (rlOrSO.swaggerUiDir) {
+    delete rlOrSO.swaggerUiDir;
+  }
 
   debug('Initializing middleware');
 
@@ -93,6 +97,9 @@ var initializeMiddleware = function initializeMiddleware (rlOrSO, resources, cal
         swaggerSecurity: require('./middleware/swagger-security'),
         // Create a wrapper to avoid having to pass the non-optional arguments back to the swaggerUi middleware
         swaggerUi: function (options) {
+          options = options || {};
+          options.swaggerUiDir = swaggerUiDir;
+          console.log(' initializing swaggerUi with options', options);
           var swaggerUi = require('./middleware/swagger-ui');
           var suArgs = [rlOrSO];
 
