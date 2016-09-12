@@ -123,7 +123,7 @@ var processOperationParameters = function (swaggerMetadata, pathKeys, pathMatch,
     return next();
   }
 
-  debug('  Processing Parameters');
+  debug('  Processing Paramettters', parameters);
 
   var parsers = _.reduce(parameters, function (requestParsers, parameter) {
     var contentType = req.headers['content-type'];
@@ -132,10 +132,16 @@ var processOperationParameters = function (swaggerMetadata, pathKeys, pathMatch,
     var parsableBody = mHelpers.isModelType(spec, paramType) || ['array', 'object'].indexOf(paramType) > -1;
     var parser;
 
+    debug('  Processing paramLocation', paramLocation);
+    debug('  Processing formData', parsableBody);
+
     switch (paramLocation) {
       case 'body':
       case 'form':
       case 'formData':
+
+        debug('  Processing formData', parsableBody);
+
         if (paramType.toLowerCase() === 'file' || (contentType && contentType.split(';')[0] === 'multipart/form-data')) {
           // Do not add a parser, multipart will be handled after
           break;
@@ -162,6 +168,9 @@ var processOperationParameters = function (swaggerMetadata, pathKeys, pathMatch,
 
   // Multipart is handled by multer, which needs an array of {parameterName, maxCount}
   var multiPartFields = _.reduce(parameters, function (fields, parameter) {
+
+    debug('  Processing multiPartFields', parameters);
+
     var paramLocation = version === '1.2' ? parameter.paramType : parameter.schema.in;
     var paramType = mHelpers.getParameterType(version === '1.2' ? parameter : parameter.schema);
     var paramName = version === '1.2' ? parameter.name : parameter.schema.name;
@@ -179,7 +188,7 @@ var processOperationParameters = function (swaggerMetadata, pathKeys, pathMatch,
 
     return fields;
   }, []);
-  
+
   var contentType = req.headers['content-type'];
   if (multiPartFields.length) {
     // If there are files, use multer#fields
@@ -209,7 +218,7 @@ var processOperationParameters = function (swaggerMetadata, pathKeys, pathMatch,
       oVal = mHelpers.getParameterValue(version, parameter, pathKeys, pathMatch, req, debug);
       value = mHelpers.convertValue(oVal, _.isUndefined(parameter.schema) ? parameter : parameter.schema, pType);
 
-      debug('      Value: %s', value);
+      debug('      Value: ', value);
 
       swaggerMetadata.params[parameter.name] = {
         path: version === '1.2' ?
